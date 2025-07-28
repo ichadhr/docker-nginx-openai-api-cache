@@ -1,7 +1,8 @@
-version: '3'
+# docker-compose.yml
+
 services:
   openai-cache-proxy:
-    image: nginx:1.23.4
+    image: nginx:stable
     container_name: openai-cache-proxy
     ports:
       - 127.0.0.1:81:80
@@ -9,3 +10,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./cache.conf:/etc/nginx/cache.conf:ro
       - ./server_cache:/server_cache:rw
+      - ./js:/etc/nginx/js:ro
+      - cache_data:/server_cache
+volumes:
+  cache_data:

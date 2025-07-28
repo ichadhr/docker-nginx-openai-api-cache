@@ -96,12 +96,36 @@ docker-compose down
 Set your client's API server address to `http://localhost:81/v1`
 Once the containers are running, you can use the OpenAI API through the cache by sending requests to the supported URIs.
 
-URIs that are supported will be forwarded, unless they are cached. 
+URIs that are supported will be forwarded, unless they are cached.
 URIs that are not supported will be forwarded normally.
 
 ### Configuration
 
 The cache is configured using the `nginx.conf`. You can modify this file to change the cache settings or add additional URIs.
+
+## Mistral API Special Handling
+
+This proxy includes special handling for Mistral API `http://localhost:81/mistral/v1` requests to address compatibility issues with certain clients like Cline, Roo Code and Kilo Code.
+
+### Stream Options Compatibility
+
+Some clients include a `stream_options` parameter in their requests to Mistral API endpoints. However, the Mistral API doesn't support this parameter, which can cause 422 errors.
+
+Proxy automatically:
+1. Detects and removes the `stream_options` parameter from Mistral API requests
+2. Preserves all other request parameters
+3. Maintains the request integrity while ensuring compatibility
+
+This handling is implemented through a JavaScript module that processes Mistral request bodies before they're forwarded to the API.
+
+### Technical Implementation
+
+The special handling is implemented in `js/modify_mistral_body.js` which:
+- Parses incoming request bodies
+- Removes incompatible parameters
+- Returns the modified request body to Nginx
+
+This ensures seamless compatibility with Mistral's API while maintaining all caching functionality.
 
 ## Contributing
 
